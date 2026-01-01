@@ -673,6 +673,8 @@ const ContractManagementSystem = () => {
     </div>
   );
 
+  const [activeTab, setActiveTab] = useState('actions');
+
   const renderDetails = () => {
     if (!selectedContract) return null;
     const StatusIcon = statusConfig[selectedContract.status].icon;
@@ -792,38 +794,116 @@ const ContractManagementSystem = () => {
                 <p className="text-gray-500 text-sm">No documents uploaded yet</p>
               )}
             </div>
-
-            <AuditLogPanel auditLog={selectedContract.auditLog} />
           </div>
 
           <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold mb-4">Actions</h2>
-              <div className="space-y-3">
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+              {/* Tab Headers */}
+              <div className="flex border-b border-gray-200">
                 <button
-                  onClick={() => handleEdit(selectedContract)}
-                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2"
+                  onClick={() => setActiveTab('actions')}
+                  className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                    activeTab === 'actions'
+                      ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
                 >
-                  <Edit2 size={18} />
-                  Edit Contract
+                  Actions
                 </button>
-                {selectedContract.status === 'Draft' && (
-                  <button
-                    onClick={() => handleSubmitForApproval(selectedContract.id)}
-                    className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center gap-2"
-                  >
-                    <CheckCircle size={18} />
-                    Submit for Approval
-                  </button>
+                <button
+                  onClick={() => setActiveTab('audit')}
+                  className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                    activeTab === 'audit'
+                      ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  Audit Trail
+                </button>
+              </div>
+
+              {/* Tab Content */}
+              <div className="p-6">
+                {activeTab === 'actions' && (
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => handleEdit(selectedContract)}
+                      className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2"
+                    >
+                      <Edit2 size={18} />
+                      Edit Contract
+                    </button>
+                    {selectedContract.status === 'Draft' && (
+                      <button
+                        onClick={() => handleSubmitForApproval(selectedContract.id)}
+                        className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center gap-2"
+                      >
+                        <CheckCircle size={18} />
+                        Submit for Approval
+                      </button>
+                    )}
+                    {(selectedContract.status === 'Active' || selectedContract.status === 'Active Extended') && (
+                      <button
+                        onClick={() => handleExtensionClick(selectedContract)}
+                        className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center justify-center gap-2"
+                      >
+                        <Calendar size={18} />
+                        Manage Extension
+                      </button>
+                    )}
+                  </div>
                 )}
-                {(selectedContract.status === 'Active' || selectedContract.status === 'Active Extended') && (
-                  <button
-                    onClick={() => handleExtensionClick(selectedContract)}
-                    className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center justify-center gap-2"
-                  >
-                    <Calendar size={18} />
-                    Manage Extension
-                  </button>
+
+                {activeTab === 'audit' && (
+                  <div className="max-h-96 overflow-y-auto">
+                    {selectedContract.auditLog && selectedContract.auditLog.length > 0 ? (
+                      <div className="space-y-4">
+                        {[...selectedContract.auditLog].reverse().map((entry, index) => (
+                          <div key={entry.id} className="relative pl-8 pb-4 border-l-2 border-gray-200 last:border-l-0 last:pb-0">
+                            <div className="absolute left-0 top-0 -translate-x-1/2 w-4 h-4 rounded-full bg-blue-500 border-2 border-white"></div>
+                            <div className="bg-gray-50 rounded-lg p-3">
+                              <div className="flex items-start justify-between mb-2">
+                                <div>
+                                  <h3 className="font-semibold text-sm text-gray-900">
+                                    {entry.action.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                  </h3>
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    {new Date(entry.timestamp).toLocaleString('en-US', {
+                                      year: 'numeric',
+                                      month: 'short',
+                                      day: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    })}
+                                  </p>
+                                </div>
+                                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded whitespace-nowrap">
+                                  {entry.user}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-700 mt-2">{entry.details}</p>
+                              {(entry.oldValue || entry.newValue) && (
+                                <div className="mt-3 pt-3 border-t border-gray-200 text-xs">
+                                  {entry.oldValue && (
+                                    <p className="text-gray-600">
+                                      <span className="font-medium">Previous:</span> {entry.oldValue}
+                                    </p>
+                                  )}
+                                  {entry.newValue && (
+                                    <p className="text-gray-600">
+                                      <span className="font-medium">New:</span> {entry.newValue}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-sm text-center py-8">No audit entries yet</p>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
