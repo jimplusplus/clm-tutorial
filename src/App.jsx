@@ -17,6 +17,8 @@ const createAuditEntry = (action, user, details, oldValue = null, newValue = nul
 // Sample contract data with audit logs
 const initialContracts = [
   {
+    orgnisationId: 'ORG-001',
+    subOrganisationId: '',
     id: '1',
     contractRef: 'CTR-2024-001',
     contractName: 'Software License Agreement - Enterprise Suite',
@@ -55,6 +57,8 @@ const initialContracts = [
     ]
   },
   {
+    orgnisationId: 'ORG-001',
+    subOrganisationId: '',
     id: '2',
     contractRef: 'CTR-2024-002',
     contractName: 'Office Lease Agreement',
@@ -92,6 +96,8 @@ const initialContracts = [
     ]
   },
   {
+    orgnisationId: 'ORG-001',
+    subOrganisationId: '',
     id: '3',
     contractRef: 'CTR-2024-003',
     contractName: 'Consulting Services Agreement',
@@ -129,6 +135,8 @@ const initialContracts = [
     ]
   },
   {
+    orgnisationId: 'ORG-001',
+    subOrganisationId: '',
     id: '4',
     contractRef: 'CTR-2023-015',
     contractName: 'Equipment Maintenance Agreement',
@@ -166,6 +174,8 @@ const initialContracts = [
     ]
   },
   {
+    orgnisationId: 'ORG-001',
+    subOrganisationId: '',
     id: '5',
     contractRef: 'CTR-2024-004',
     contractName: 'Cloud Services Agreement',
@@ -306,7 +316,7 @@ const ExtensionModal = ({ contract, onClose, onSave }) => {
 const AuditLogPanel = ({ auditLog }) => {
   const formatTimestamp = (timestamp) => {
     const date = new Date(timestamp);
-    return date.toLocaleString('en-US', {
+    return date.toLocaleString('en-GB', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
